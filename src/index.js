@@ -1,12 +1,9 @@
-const http = require('http');
+// initate the server
 
-const port = process.env.PORT || 8080;
+const app = require('./app');
 
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Hello from Docker app yay!');
-});
+const port = 8080;
 
-server.listen(port, () => {
-  console.log(`app listening on http://localhost:${port}`);
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });

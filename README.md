@@ -1,1 +1,1 @@
-hello
+hello run npm start
