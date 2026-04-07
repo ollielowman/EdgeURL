@@ -1,4 +1,4 @@
-// initate the server
+// initate the server and listen on defined port
 
 const app = require('./app');
 

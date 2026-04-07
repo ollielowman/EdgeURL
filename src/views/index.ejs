@@ -1,0 +1,32 @@
+<!-- frontend page for EdgeURL -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EdgeURL</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <div class="background-glow glow-1"></div>
+  <div class="background-glow glow-2"></div>
+
+  <main class="container">
+    <section class="card">
+      <h1>EdgeURL</h1>
+      <p class="subtitle">Shorten your links instantly.</p>
+
+      <form action="/shorten" method="POST" class="url-form">
+        <input
+          type="text"
+          name="originalUrl"
+          placeholder="Enter URL..."
+          required
+        />
+        <button type="submit">Shorten</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

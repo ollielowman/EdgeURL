@@ -1,0 +1,155 @@
+/* styles for the EdgeURL frontend UI (layout, form, and visual design) */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #111827, #1e293b);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.container {
+  width: 100%;
+  max-width: 700px;
+  padding: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 40px 32px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+
+h1 {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  letter-spacing: -1px;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #d1d5db;
+  margin-bottom: 28px;
+}
+
+.url-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.url-form input {
+  width: 100%;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.url-form input::placeholder {
+  color: #9ca3af;
+}
+
+.url-form input:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.18);
+}
+
+.url-form button {
+  padding: 15px 18px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.url-form button:hover {
+  transform: translateY(-2px);
+  opacity: 0.96;
+}
+
+.url-form button:active {
+  transform: translateY(0);
+}
+
+.result-box {
+  margin-top: 22px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+}
+
+.result-box a {
+  color: #93c5fd;
+  text-decoration: none;
+  font-weight: bold;
+  word-break: break-all;
+}
+
+.result-box a:hover {
+  text-decoration: underline;
+}
+
+.background-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.35;
+  z-index: 1;
+}
+
+.glow-1 {
+  width: 280px;
+  height: 280px;
+  background: #6366f1;
+  top: 8%;
+  left: 8%;
+}
+
+.glow-2 {
+  width: 320px;
+  height: 320px;
+  background: #8b5cf6;
+  bottom: 8%;
+  right: 8%;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 28px 20px;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+}
