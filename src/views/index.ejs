@@ -17,7 +17,7 @@
       <h1>EdgeURL</h1>
       <p class="subtitle">Shorten your links instantly.</p>
 
-      <form action="/shorten" method="POST" class="url-form">
+      <form id="urlForm" class="url-form">
         <input
           type="text"
           name="originalUrl"
@@ -26,7 +26,48 @@
         />
         <button type="submit">Shorten</button>
       </form>
+
+      <div id="result" class="result-box" style="display: none;"></div>
+
     </section>
   </main>
+
+  <script>
+    const form = document.getElementById('urlForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const originalUrl = formData.get('originalUrl');
+
+      try {
+        const response = await fetch('/shorten', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ originalUrl })
+        });
+
+        const data = await response.json();
+
+        resultDiv.style.display = 'block';
+
+        if (data.error) {
+          resultDiv.innerHTML = `<p>${data.error}</p>`;
+        } else {
+          resultDiv.innerHTML = `
+            <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>
+          `;
+        }
+
+      } catch (err) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `<p>Something went wrong</p>`;
+      }
+    });
+  </script>
 </body>
 </html>
