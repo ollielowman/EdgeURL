@@ -4,7 +4,6 @@ const express = require('express');
 const router = express.Router();
 const urlService = require('../services/urlService');
 
-
 // renders the homepage
 router.get('/', (req, res) => {
   res.render('index', {
@@ -15,6 +14,7 @@ router.get('/', (req, res) => {
 });
 
 // handles form submission and creates a shortened URL
+const { encodeBase62 } = require('../utils/base62');
 router.post('/shorten', async (req, res) => {
   const { originalUrl } = req.body;
 
@@ -23,9 +23,14 @@ router.post('/shorten', async (req, res) => {
   }
 
   try {
-    const shortCode = Math.random().toString(36).substring(2, 8);
+    // insert URL first (returns ID)
+    const id = await urlService.createUrl(originalUrl);
 
-    await urlService.createShortUrl(originalUrl, shortCode);
+    // encode ID → Base62
+    const shortCode = encodeBase62(id);
+
+    // update DB with shortCode
+    await urlService.addShortCode(id, shortCode);
 
     const shortUrl = `http://localhost:8080/${shortCode}`;
 
@@ -39,13 +44,20 @@ router.post('/shorten', async (req, res) => {
 
 router.get('/:code', async (req, res) => {
   try {
-    const originalUrl = await urlService.getOriginalUrl(req.params.code);
+    const url = await urlService.getUrlByCode(req.params.code);
 
-    if (!originalUrl) {
+    if (!url) {
       return res.status(404).send('Not found');
     }
 
-    res.redirect(originalUrl);
+    // log the click
+    await urlService.logHit(
+      url.id,
+      req.ip,
+      req.headers['user-agent']
+    );
+
+    res.redirect(url.original_url);
 
   } catch (err) {
     console.error(err);

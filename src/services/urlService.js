@@ -1,22 +1,53 @@
-// handles DB operations for URLs
+// handles db operations
 
-const pool = require('../config/db');
+const db = require('../config/db');
+const crypto = require('crypto');
 
-async function createShortUrl(originalUrl, shortCode) {
-  const sql = 'INSERT INTO urls (original_url, short_code) VALUES (?, ?)';
-  await pool.execute(sql, [originalUrl, shortCode]);
+// insert URL → return ID
+async function createUrl(originalUrl) {
+  const [result] = await db.execute(
+    'INSERT INTO urls (original_url) VALUES (?)',
+    [originalUrl]
+  );
+  return result.insertId;
 }
 
-async function getOriginalUrl(shortCode) {
-  const sql = 'SELECT original_url FROM urls WHERE short_code = ?';
-  const [rows] = await pool.execute(sql, [shortCode]);
+// add Base62 short code
+async function addShortCode(id, shortCode) {
+  await db.execute(
+    'UPDATE urls SET short_code = ? WHERE id = ?',
+    [shortCode, id]
+  );
+}
 
-  if (rows.length === 0) return null;
+// get URL by short code (IMPORTANT: return id + url)
+async function getUrlByCode(shortCode) {
+  const [rows] = await db.execute(
+    'SELECT id, original_url FROM urls WHERE short_code = ?',
+    [shortCode]
+  );
 
-  return rows[0].original_url;
+  return rows.length ? rows[0] : null;
+}
+
+// log click (click tracking)
+async function logHit(urlId, ip, userAgent) {
+  // hash IP for privacy
+  const ipHash = crypto
+    .createHash('sha256')
+    .update(ip)
+    .digest('hex');
+
+  await db.execute(
+    `INSERT INTO url_hits (url_id, ip_hash, user_agent)
+     VALUES (?, ?, ?)`,
+    [urlId, ipHash, userAgent]
+  );
 }
 
 module.exports = {
-  createShortUrl,
-  getOriginalUrl
+  createUrl,
+  addShortCode,
+  getUrlByCode,
+  logHit
 };
