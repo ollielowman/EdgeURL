@@ -3,6 +3,15 @@
 const express = require('express');
 const router = express.Router();
 const urlService = require('../services/urlService');
+const { encodeBase62 } = require('../utils/base62');
+const createRateLimiter = require('../middleware/rateLimiter'); // adjust path if needed
+
+// rate limiter for shortening URLs
+const shortenLimiter = createRateLimiter({
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 5,      // 5 requests per minute per IP
+  message: 'Too many URL shortening requests. Please try again later.'
+});
 
 // renders the homepage
 router.get('/', (req, res) => {
@@ -14,8 +23,7 @@ router.get('/', (req, res) => {
 });
 
 // handles form submission and creates a shortened URL
-const { encodeBase62 } = require('../utils/base62');
-router.post('/shorten', async (req, res) => {
+router.post('/shorten', shortenLimiter, async (req, res) => {
   const { originalUrl } = req.body;
 
   if (!originalUrl || !originalUrl.trim()) {
