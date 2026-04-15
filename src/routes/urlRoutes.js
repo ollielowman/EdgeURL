@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const urlService = require('../services/urlService');
-const { encodeBase62 } = require('../utils/base62');
 const createRateLimiter = require('../middleware/rateLimiter');
 const { redisClient } = require('../config/redis');
 
@@ -57,7 +56,7 @@ router.post('/shorten', shortenLimiter, async (req, res) => {
     }
 
     const id = await urlService.createUrl(cleanUrl);
-    const shortCode = encodeBase62(id);
+    const shortCode = urlService.encodeBase62(id);
 
     await urlService.addShortCode(id, shortCode);
 
