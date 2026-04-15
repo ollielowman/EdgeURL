@@ -57,12 +57,13 @@
         resultDiv.style.display = 'block';
 
         if (data.error) {
-          resultDiv.innerHTML = `<p>${data.error}</p>`;
-        } else {
-          resultDiv.innerHTML = `
-            <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>
-          `;
-        }
+  resultDiv.innerHTML = `<p>${data.error}</p>`;
+} else {
+  resultDiv.innerHTML = `
+    <p>${data.reused ? 'Existing short URL found:' : 'URL created:'}</p>
+    <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>
+  `;
+}
 
       } catch (err) {
         resultDiv.style.display = 'block';

@@ -40,28 +40,40 @@ router.post('/shorten', shortenLimiter, async (req, res) => {
     });
   }
 
-  if (!urlService.isValidUrl(originalUrl.trim())) {
+  const cleanUrl = originalUrl.trim();
+
+  if (!urlService.isValidUrl(cleanUrl)) {
     return res.status(400).json({
       error: 'Please enter a valid URL (include http:// or https://).'
     });
   }
 
   try {
-    const cleanUrl = originalUrl.trim();
+    const existingUrl = await urlService.getUrlByOriginal(cleanUrl);
+
+    if (existingUrl) {
+      return res.json({
+        shortUrl: `http://localhost:8080/${existingUrl.short_code}`,
+        reused: true
+      });
+    }
 
     const id = await urlService.createUrl(cleanUrl);
     const shortCode = encodeBase62(id);
+
     await urlService.addShortCode(id, shortCode);
 
-    const shortUrl = `http://localhost:8080/${shortCode}`;
-
-    res.json({ shortUrl }); // 200 is correct here
+    return res.json({
+      shortUrl: `http://localhost:8080/${shortCode}`,
+      reused: false
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'DB error' });
+    return res.status(500).json({
+      error: 'DB error'
+    });
   }
 });
-
 router.get('/:code', async (req, res) => {
   try {
     const url = await urlService.getUrlByCode(req.params.code);

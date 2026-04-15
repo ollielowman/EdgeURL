@@ -12,6 +12,16 @@ function isValidUrl(url) {
   }
 }
 
+// find existing URL by original_url
+async function getUrlByOriginal(originalUrl) {
+  const [rows] = await db.execute(
+    'SELECT id, original_url, short_code FROM urls WHERE original_url = ? LIMIT 1',
+    [originalUrl]
+  );
+
+  return rows.length ? rows[0] : null;
+}
+
 // insert URL → return ID
 async function createUrl(originalUrl) {
   const [result] = await db.execute(
@@ -50,7 +60,8 @@ async function getAllUrls() {
 }
 
 module.exports = {
-  isValidUrl,   // 👈 export it
+  isValidUrl,
+  getUrlByOriginal,
   createUrl,
   addShortCode,
   getUrlByCode,
