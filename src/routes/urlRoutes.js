@@ -9,7 +9,7 @@ const createRateLimiter = require('../middleware/rateLimiter'); // adjust path i
 // rate limiter for shortening URLs
 const shortenLimiter = createRateLimiter({
   windowMs: 60 * 1000, // 1 minute
-  maxRequests: 5,      // 5 requests per minute per IP
+  maxRequests: 15,      // 5 requests per minute per IP
   message: 'Too many URL shortening requests. Please try again later.'
 });
 
