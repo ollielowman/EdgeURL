@@ -1,19 +1,15 @@
-// handles URL-related routes (homepage rendering and future URL shortening endpoints)
-
 const express = require('express');
 const router = express.Router();
 const urlService = require('../services/urlService');
 const { encodeBase62 } = require('../utils/base62');
-const createRateLimiter = require('../middleware/rateLimiter'); // adjust path if needed
+const createRateLimiter = require('../middleware/rateLimiter');
 
-// rate limiter for shortening URLs
 const shortenLimiter = createRateLimiter({
-  windowMs: 60 * 1000, // 1 minute
-  maxRequests: 15,      // 5 requests per minute per IP
+  windowMs: 60 * 1000,
+  maxRequests: 15,
   message: 'Too many URL shortening requests. Please try again later.'
 });
 
-// renders the homepage
 router.get('/', (req, res) => {
   res.render('index', {
     shortUrl: null,
@@ -22,28 +18,44 @@ router.get('/', (req, res) => {
   });
 });
 
-// handles form submission and creates a shortened URL
+router.get('/logs', async (req, res) => {
+  try {
+    const urls = await urlService.getAllUrls();
+
+    res.render('logs', {
+      urls
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Failed to load logs page');
+  }
+});
+
 router.post('/shorten', shortenLimiter, async (req, res) => {
   const { originalUrl } = req.body;
 
   if (!originalUrl || !originalUrl.trim()) {
-    return res.json({ error: 'Please enter a valid URL.' });
+    return res.status(400).json({
+      error: 'Please enter a URL.'
+    });
+  }
+
+  if (!urlService.isValidUrl(originalUrl.trim())) {
+    return res.status(400).json({
+      error: 'Please enter a valid URL (include http:// or https://).'
+    });
   }
 
   try {
-    // insert URL first (returns ID)
-    const id = await urlService.createUrl(originalUrl);
+    const cleanUrl = originalUrl.trim();
 
-    // encode ID → Base62
+    const id = await urlService.createUrl(cleanUrl);
     const shortCode = encodeBase62(id);
-
-    // update DB with shortCode
     await urlService.addShortCode(id, shortCode);
 
     const shortUrl = `http://localhost:8080/${shortCode}`;
 
-    res.json({ shortUrl });
-
+    res.json({ shortUrl }); // 200 is correct here
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'DB error' });
@@ -58,15 +70,7 @@ router.get('/:code', async (req, res) => {
       return res.status(404).send('Not found');
     }
 
-    // log the click
-    await urlService.logHit(
-      url.id,
-      req.ip,
-      req.headers['user-agent']
-    );
-
     res.redirect(url.original_url);
-
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');

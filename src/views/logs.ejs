@@ -1,0 +1,59 @@
+<!-- frontend page for observational EdgeURL db -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EdgeURL Logs</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <div class="background-glow glow-1"></div>
+  <div class="background-glow glow-2"></div>
+
+  <main class="container">
+    <section class="card">
+      <h1>EdgeURL Logs</h1>
+      <p class="subtitle">Database records for shortened URLs.</p>
+
+      <div style="margin-bottom: 1rem;">
+        <a href="/" class="secondary-button">Back to Home</a>
+      </div>
+
+      <div class="table-section">
+        <h2>URLs</h2>
+        <div class="table-wrapper">
+          <table class="log-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Original URL</th>
+                <th>Short Code</th>
+                <th>Created At</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (urls.length === 0) { %>
+                <tr>
+                  <td colspan="4">No URLs found.</td>
+                </tr>
+              <% } else { %>
+                <% urls.forEach(url => { %>
+                  <tr>
+                    <td><%= url.id %></td>
+                    <td style="word-break: break-word;"><%= url.original_url %></td>
+                    <td><%= url.short_code %></td>
+                    <td><%= url.created_at %></td>
+                  </tr>
+                <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</body>
+</html>

@@ -1,7 +1,16 @@
 // handles db operations
 
 const db = require('../config/db');
-const crypto = require('crypto');
+
+// validate URL
+function isValidUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch (err) {
+    return false;
+  }
+}
 
 // insert URL → return ID
 async function createUrl(originalUrl) {
@@ -20,7 +29,7 @@ async function addShortCode(id, shortCode) {
   );
 }
 
-// get URL by short code (IMPORTANT: return id + url)
+// get URL by short code
 async function getUrlByCode(shortCode) {
   const [rows] = await db.execute(
     'SELECT id, original_url FROM urls WHERE short_code = ?',
@@ -30,24 +39,20 @@ async function getUrlByCode(shortCode) {
   return rows.length ? rows[0] : null;
 }
 
-// log click (click tracking)
-async function logHit(urlId, ip, userAgent) {
-  // hash IP for privacy
-  const ipHash = crypto
-    .createHash('sha256')
-    .update(ip)
-    .digest('hex');
-
-  await db.execute(
-    `INSERT INTO url_hits (url_id, ip_hash, user_agent)
-     VALUES (?, ?, ?)`,
-    [urlId, ipHash, userAgent]
-  );
+// fetch urls table
+async function getAllUrls() {
+  const [rows] = await db.execute(`
+    SELECT id, original_url, short_code, created_at
+    FROM urls
+    ORDER BY created_at DESC
+  `);
+  return rows;
 }
 
 module.exports = {
+  isValidUrl,   // 👈 export it
   createUrl,
   addShortCode,
   getUrlByCode,
-  logHit
+  getAllUrls
 };
