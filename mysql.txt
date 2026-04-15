@@ -8,14 +8,7 @@ USE edgeurl;
 
 SELECT * FROM urls;
 
-1. Better short-code generation
-
-Use Base62 generator.
-
-2. Collision handling
-
-Because random generation can still duplicate.
-
-3. Rate limiting
-
-This protects abuse, but core shortening must work first.
+1. fix Too many URL shortening requests. Please try again later. prompt to auto update
+2. code refactoring/comments
+3. requirements doc -  func, non func, scope, justifications, extensions
+4. readme instructions and dockerised

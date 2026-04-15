@@ -37,16 +37,18 @@ router.post('/shorten', shortenLimiter, async (req, res) => {
     });
   }
 
-  const cleanUrl = originalUrl.trim();
+  const rawUrl = originalUrl.trim();
 
-  if (!urlService.isValidUrl(cleanUrl)) {
+  if (!urlService.isValidUrl(rawUrl)) {
     return res.status(400).json({
       error: 'Please enter a valid URL (include http:// or https://).'
     });
   }
 
+  const normalizedUrl = urlService.normalizeUrl(rawUrl);
+
   try {
-    const existingUrl = await urlService.getUrlByOriginal(cleanUrl);
+    const existingUrl = await urlService.getUrlByOriginal(normalizedUrl);
 
     if (existingUrl) {
       return res.status(200).json({
@@ -55,7 +57,7 @@ router.post('/shorten', shortenLimiter, async (req, res) => {
       });
     }
 
-    const id = await urlService.createUrl(cleanUrl);
+    const id = await urlService.createUrl(normalizedUrl);
     const shortCode = urlService.encodeBase62(id);
 
     await urlService.addShortCode(id, shortCode);
@@ -103,6 +105,17 @@ router.get('/:code', async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).send('Server error');
+  }
+});
+
+router.post('/reset', async (req, res) => {
+  try {
+    await urlService.resetUrls();
+
+    res.redirect('/logs');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Failed to reset data');
   }
 });
 

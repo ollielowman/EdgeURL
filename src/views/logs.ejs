@@ -15,10 +15,14 @@
       <h1>EdgeURL Logs</h1>
       <p class="subtitle">Database records for shortened URLs.</p>
 
-      <div style="margin-bottom: 1rem;">
-        <a href="/" class="secondary-button">Back to Home</a>
-      </div>
+    <div class="action-buttons">
+  <a href="/" class="secondary-button action-link">Back to Home</a>
 
+  <form class="action-form" action="/reset" method="POST"
+        onsubmit="return confirm('Are you sure you want to clear all URL data?');">
+    <button type="submit" class="danger-button action-link">Reset Data</button>
+  </form>
+</div>
       <div class="table-section">
         <h2>URLs</h2>
         <div class="table-wrapper">

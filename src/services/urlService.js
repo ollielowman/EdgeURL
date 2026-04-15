@@ -12,6 +12,33 @@ function isValidUrl(url) {
   }
 }
 
+// normalize URL so equivalent links match
+function normalizeUrl(url) {
+  const parsed = new URL(url.trim());
+
+  parsed.protocol = parsed.protocol.toLowerCase();
+  parsed.hostname = parsed.hostname.toLowerCase();
+
+  // remove default ports
+  if (
+    (parsed.protocol === 'http:' && parsed.port === '80') ||
+    (parsed.protocol === 'https:' && parsed.port === '443')
+  ) {
+    parsed.port = '';
+  }
+
+  // remove trailing slash from non-root paths
+  if (parsed.pathname.length > 1 && parsed.pathname.endsWith('/')) {
+    parsed.pathname = parsed.pathname.slice(0, -1);
+  }
+
+  // remove root slash
+  if (parsed.pathname === '/') {
+    parsed.pathname = '';
+  }
+
+  return parsed.toString();
+}
 async function incrementClickCountByCode(shortCode) {
   await db.execute(
     'UPDATE urls SET click_count = click_count + 1 WHERE short_code = ?',
@@ -85,6 +112,10 @@ function encodeBase62(num) {
   return result || '0';
 }
 
+async function resetUrls() {
+  await db.execute('TRUNCATE TABLE urls');
+}
+
 module.exports = {
   isValidUrl,
   getUrlByOriginal,
@@ -94,5 +125,7 @@ module.exports = {
   incrementClickCountByCode,
   getUrlByCode,
   getAllUrls,
-  encodeBase62
+  encodeBase62,
+  normalizeUrl,
+  resetUrls
 };
