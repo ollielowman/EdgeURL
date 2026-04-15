@@ -1,9 +1,19 @@
-// initate the server and listen on defined port
-
 const app = require('./app');
+const { connectRedis } = require('./config/redis');
 
-const port = 8080;
+const port = process.env.PORT || 8080;
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
-});
+async function startServer() {
+  try {
+    await connectRedis();
+
+    app.listen(port, () => {
+      console.log(`Server running on http://localhost:${port}`);
+    });
+  } catch (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
+}
+
+startServer();

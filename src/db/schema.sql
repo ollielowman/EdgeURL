@@ -7,15 +7,7 @@ USE edgeurl;
 CREATE TABLE urls (
   id INT AUTO_INCREMENT PRIMARY KEY,
   original_url TEXT NOT NULL,
-  short_code VARCHAR(20) NOT NULL UNIQUE,
+  short_code VARCHAR(20) NULL UNIQUE,
+  click_count INT NOT NULL DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE url_hits (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  url_id INT,
-  hit_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  ip_hash VARCHAR(255),
-  user_agent TEXT,
-  FOREIGN KEY (url_id) REFERENCES urls(id)
 );

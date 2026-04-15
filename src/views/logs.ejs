@@ -1,5 +1,3 @@
-<!-- frontend page for observational EdgeURL db -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,13 +28,14 @@
                 <th>ID</th>
                 <th>Original URL</th>
                 <th>Short Code</th>
+                <th>Click Count</th>
                 <th>Created At</th>
               </tr>
             </thead>
             <tbody>
               <% if (urls.length === 0) { %>
                 <tr>
-                  <td colspan="4">No URLs found.</td>
+                  <td colspan="5">No URLs found.</td>
                 </tr>
               <% } else { %>
                 <% urls.forEach(url => { %>
@@ -44,6 +43,7 @@
                     <td><%= url.id %></td>
                     <td style="word-break: break-word;"><%= url.original_url %></td>
                     <td><%= url.short_code %></td>
+                    <td><%= url.click_count %></td>
                     <td><%= url.created_at %></td>
                   </tr>
                 <% }) %>
