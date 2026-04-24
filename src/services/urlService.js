@@ -1,8 +1,8 @@
-// handles db operations
+// handles url validation, normalization, encoding, and database operations
 
 const db = require('../config/db');
 
-// validate URL
+// checks that the url uses http or https
 function isValidUrl(url) {
   try {
     const parsed = new URL(url);
@@ -12,7 +12,7 @@ function isValidUrl(url) {
   }
 }
 
-// normalize URL so equivalent links match
+// normalizes urls so equivalent links match in the database
 function normalizeUrl(url) {
   const parsed = new URL(url.trim());
 
@@ -39,6 +39,8 @@ function normalizeUrl(url) {
 
   return parsed.toString();
 }
+
+// increments click count using the short code
 async function incrementClickCountByCode(shortCode) {
   await db.execute(
     'UPDATE urls SET click_count = click_count + 1 WHERE short_code = ?',
@@ -46,7 +48,7 @@ async function incrementClickCountByCode(shortCode) {
   );
 }
 
-// find existing URL by original_url
+// finds an existing url by original url
 async function getUrlByOriginal(originalUrl) {
   const [rows] = await db.execute(
     'SELECT id, original_url, short_code, click_count FROM urls WHERE original_url = ? LIMIT 1',
@@ -56,16 +58,17 @@ async function getUrlByOriginal(originalUrl) {
   return rows.length ? rows[0] : null;
 }
 
-// insert URL → return ID
+// inserts a new url and returns its generated id
 async function createUrl(originalUrl) {
   const [result] = await db.execute(
     'INSERT INTO urls (original_url) VALUES (?)',
     [originalUrl]
   );
+
   return result.insertId;
 }
 
-// add Base62 short code
+// adds the generated base62 short code to an existing url record
 async function addShortCode(id, shortCode) {
   await db.execute(
     'UPDATE urls SET short_code = ? WHERE id = ?',
@@ -73,7 +76,7 @@ async function addShortCode(id, shortCode) {
   );
 }
 
-// increment click count
+// increments click count using the url id
 async function incrementClickCount(id) {
   await db.execute(
     'UPDATE urls SET click_count = click_count + 1 WHERE id = ?',
@@ -81,7 +84,7 @@ async function incrementClickCount(id) {
   );
 }
 
-// get URL by short code
+// fetches the original url for a given short code
 async function getUrlByCode(shortCode) {
   const [rows] = await db.execute(
     'SELECT id, original_url, click_count FROM urls WHERE short_code = ?',
@@ -91,27 +94,33 @@ async function getUrlByCode(shortCode) {
   return rows.length ? rows[0] : null;
 }
 
-// fetch urls table
+// fetches all url records for the logs page
 async function getAllUrls() {
   const [rows] = await db.execute(`
     SELECT id, original_url, short_code, click_count, created_at
     FROM urls
     ORDER BY created_at DESC
   `);
+
   return rows;
 }
 
-// url encoding
+// characters used for base62 short code generation
 const BASE62 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+// converts a numeric database id into a base62 short code
 function encodeBase62(num) {
   let result = '';
+
   while (num > 0) {
     result = BASE62[num % 62] + result;
     num = Math.floor(num / 62);
   }
+
   return result || '0';
 }
 
+// clears all url records from the table
 async function resetUrls() {
   await db.execute('TRUNCATE TABLE urls');
 }

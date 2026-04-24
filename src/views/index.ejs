@@ -1,4 +1,4 @@
-<!-- frontend page for EdgeURL -->
+<!-- main frontend page for edgeurl, handles user input and ajax-based url shortening -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,6 +17,7 @@
       <h1>EdgeURL</h1>
       <p class="subtitle">Shorten your links instantly.</p>
 
+      <!-- form for submitting a url to be shortened -->
       <form id="urlForm" class="url-form">
         <input
           type="text"
@@ -27,16 +28,21 @@
         <button type="submit">Shorten</button>
       </form>
 
+      <!-- displays result or error messages -->
       <div id="result" class="result-box" style="display: none;"></div>
-      <a href="/logs" class="secondary-button logs-button">View Logs</a>
 
+      <!-- link to logs page -->
+      <a href="/logs" class="secondary-button logs-button">View Logs</a>
     </section>
   </main>
 
   <script>
     const form = document.getElementById('urlForm');
     const resultDiv = document.getElementById('result');
+    const input = form.querySelector('input[name="originalUrl"]');
+    const button = form.querySelector('button');
 
+    // handles form submission using ajax instead of page reload
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -56,14 +62,49 @@
 
         resultDiv.style.display = 'block';
 
+        // handles rate limit response with countdown until retry
+        if (response.status === 429) {
+          let secondsLeft = data.retryAfterSeconds || 60;
+
+          input.disabled = true;
+          button.disabled = true;
+
+          resultDiv.innerHTML = `
+            <p>${data.error}</p>
+            <p>Page will reset in ${secondsLeft} seconds...</p>
+          `;
+
+          const countdown = setInterval(() => {
+            secondsLeft--;
+
+            resultDiv.innerHTML = `
+              <p>${data.error}</p>
+              <p>Try again in ${secondsLeft} seconds...</p>
+            `;
+
+            if (secondsLeft <= 0) {
+              clearInterval(countdown);
+              form.reset();
+              resultDiv.style.display = 'none';
+              resultDiv.innerHTML = '';
+              input.disabled = false;
+              button.disabled = false;
+            }
+          }, 1000);
+
+          return;
+        }
+
+        // displays validation error from backend
         if (data.error) {
-  resultDiv.innerHTML = `<p>${data.error}</p>`;
-} else {
-  resultDiv.innerHTML = `
-    <p>${data.reused ? 'Existing short URL found:' : 'URL created:'}</p>
-    <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>
-  `;
-}
+          resultDiv.innerHTML = `<p>${data.error}</p>`;
+        } else {
+          // displays shortened url (or reused existing one)
+          resultDiv.innerHTML = `
+            <p>${data.reused ? 'Existing short URL found:' : 'URL created:'}</p>
+            <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>
+          `;
+        }
 
       } catch (err) {
         resultDiv.style.display = 'block';

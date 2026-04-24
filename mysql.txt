@@ -8,7 +8,8 @@ USE edgeurl;
 
 SELECT * FROM urls;
 
-1. fix Too many URL shortening requests. Please try again later. prompt to auto update
-2. code refactoring/comments
+
 3. requirements doc -  func, non func, scope, justifications, extensions
 4. readme instructions and dockerised
+
+https://thita.ai/blog/resume/best-projects-to-put-on-your-software-engineer-resume-in-2026

@@ -1,3 +1,5 @@
+<!-- logs page for viewing stored shortened urls and resetting url data -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,16 +17,24 @@
       <h1>EdgeURL Logs</h1>
       <p class="subtitle">Database records for shortened URLs.</p>
 
-    <div class="action-buttons">
-  <a href="/" class="secondary-button action-link">Back to Home</a>
+      <!-- navigation and reset actions -->
+      <div class="action-buttons">
+        <a href="/" class="secondary-button action-link">Back to Home</a>
 
-  <form class="action-form" action="/reset" method="POST"
-        onsubmit="return confirm('Are you sure you want to clear all URL data?');">
-    <button type="submit" class="danger-button action-link">Reset Data</button>
-  </form>
-</div>
+        <form
+          class="action-form"
+          action="/reset"
+          method="POST"
+          onsubmit="return confirm('Are you sure you want to clear all URL data?');"
+        >
+          <button type="submit" class="danger-button action-link">Reset Data</button>
+        </form>
+      </div>
+
+      <!-- displays urls stored in the database -->
       <div class="table-section">
         <h2>URLs</h2>
+
         <div class="table-wrapper">
           <table class="log-table">
             <thead>
@@ -56,7 +66,6 @@
           </table>
         </div>
       </div>
-
     </section>
   </main>
 </body>

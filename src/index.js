@@ -1,10 +1,14 @@
+// entry point for the application, connects to redis and starts the express server
+
 const app = require('./app');
 const { connectRedis } = require('./config/redis');
 
 const port = process.env.PORT || 8080;
 
+// initializes dependencies and starts the server
 async function startServer() {
   try {
+    // ensure redis is connected before handling requests
     await connectRedis();
 
     app.listen(port, () => {

@@ -1,3 +1,5 @@
+// in-memory rate limiting middleware to prevent abuse of endpoints
+
 const ipStore = new Map();
 
 function createRateLimiter({
@@ -6,6 +8,7 @@ function createRateLimiter({
   message = 'Too many requests, please try again later.'
 } = {}) {
   return (req, res, next) => {
+    // get client ip (supports proxies via x-forwarded-for)
     const ip =
       req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
       req.socket.remoteAddress ||
@@ -14,11 +17,13 @@ function createRateLimiter({
     const now = Date.now();
     const entry = ipStore.get(ip);
 
+    // first request from this ip
     if (!entry) {
       ipStore.set(ip, { count: 1, windowStart: now });
       return next();
     }
 
+    // reset window if time has passed
     if (now - entry.windowStart >= windowMs) {
       entry.count = 1;
       entry.windowStart = now;
@@ -26,6 +31,7 @@ function createRateLimiter({
       return next();
     }
 
+    // block request if limit exceeded
     if (entry.count >= maxRequests) {
       return res.status(429).json({
         error: message,
@@ -33,12 +39,13 @@ function createRateLimiter({
       });
     }
 
+    // increment request count
     entry.count += 1;
     next();
   };
 }
 
-// remove expired entries every 5 minutes
+// cleanup: remove stale ip entries every 5 minutes to prevent memory growth
 setInterval(() => {
   const now = Date.now();
 
