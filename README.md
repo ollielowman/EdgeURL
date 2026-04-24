@@ -36,7 +36,7 @@ Download and install: https://www.docker.com/
 ### 2. Clone the repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/ollielowman/EdgeURL.git
 cd EdgeURL
 ```
 
