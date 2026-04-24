@@ -3,10 +3,10 @@
 const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'apple123', // database password
-  database: 'edgeurl',
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || 'apple123', // database password
+  database: process.env.DB_NAME || 'edgeurl',
   waitForConnections: true, // queue requests when no connections are available
   connectionLimit: 10 // max number of connections in the pool
 });
